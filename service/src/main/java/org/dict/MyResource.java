@@ -2,9 +2,16 @@
 package org.dict;
 
 import javax.ws.rs.GET;
+
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import org.dict.db.Word;
+import org.dict.db.HibernateUtil;
 
 /** Example resource class hosted at the URI path "/myresource"
  */
@@ -18,6 +25,21 @@ public class MyResource {
     @GET 
     @Produces({"text/plain"})
     public String getIt(@PathParam("varWord") String word) {
-        return "Meaning of the word " + word + " is unknow!";
+        
+        Session sess = null;
+        String result = "Exception";
+        try{
+               sess = HibernateUtil.getSession();
+               Word w = (Word) sess.get(Word.class, 1);
+               if(w != null) {
+            	   result = "Found " + w.getWord();
+               }
+               
+               result = word + " not found";
+        }
+        catch(HibernateException e){
+               e.printStackTrace();//Later remove this by appropriate logger statement or throw custom exception
+        }
+        return result;
     }
 }
